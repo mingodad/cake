@@ -1421,9 +1421,9 @@ static void flow_visit_expression(struct flow_visit_ctx* ctx, struct expression*
 
         flow_visit_bracket_initializer_list(ctx, p_expression->braced_initializer);
 
-        struct object temp2 = make_object(&p_expression->type, p_expression->type_name->declarator);
-        object_swap(&temp2, &p_expression->type_name->declarator->object);
-        object_destroy(&temp2);
+        struct object* owner temp2 = make_object(&p_expression->type, p_expression->type_name->declarator);
+        object_swap(temp2, &p_expression->type_name->declarator->object);
+        object_destroy(temp2);
 
         //TODO the state of object depends of the initializer
         set_direct_state(&p_expression->type, &p_expression->type_name->declarator->object, OBJECT_STATE_ZERO);
@@ -2277,9 +2277,9 @@ static void flow_visit_declarator(struct flow_visit_ctx* ctx, struct declarator*
         p_defer->declarator = p_declarator;
 
 
-        struct object temp = make_object(&p_declarator->type, p_declarator);
-        object_swap(&temp, &p_declarator->object);
-        object_destroy(&temp);
+        struct object* owner temp = make_object(&p_declarator->type, p_declarator);
+        object_swap(temp, &p_declarator->object);
+        object_destroy(temp);
 
         if (p_declarator->declaration_specifiers &&
             p_declarator->declaration_specifiers->storage_class_specifier_flags & STORAGE_SPECIFIER_PARAMETER)

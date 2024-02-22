@@ -41,6 +41,9 @@ static void print_report(struct report* report, bool msvc)
 int main(int argc, char** argv)
 {
     enable_vt_mode();
+    printf("Sizeof struct type = %zd\n", sizeof(struct type));
+    printf("Sizeof struct token = %zd\n", sizeof(struct token));
+    printf("Sizeof struct object = %zd\n", sizeof(struct object));
 
     //-msvc-output 
 

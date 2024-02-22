@@ -81,7 +81,7 @@ void object_delete(struct object* owner opt p);
 void object_swap(struct object* a, struct object* b);
 
 struct declarator;
-struct object make_object(struct type* p_type, const struct declarator* declarator);
+struct object * owner make_object(struct type* p_type, const struct declarator* declarator);
 
 void object_push_copy_current_state(struct object* object);
 

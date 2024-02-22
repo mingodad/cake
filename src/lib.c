@@ -10569,7 +10569,7 @@ void object_delete(struct object* owner opt p);
 void object_swap(struct object* a, struct object* b);
 
 struct declarator;
-struct object make_object(struct type* p_type, const struct declarator* declarator);
+struct object * owner make_object(struct type* p_type, const struct declarator* declarator);
 
 void object_push_copy_current_state(struct object* object);
 
@@ -19952,10 +19952,10 @@ bool has_name(const char* name, struct object_name_list* list)
 	return false;
 }
 
-struct object make_object_core(struct type* p_type, struct object_name_list* list, int deep, const struct declarator* declarator)
+struct object * owner make_object_core(struct type* p_type, struct object_name_list* list, int deep, const struct declarator* declarator)
 {
-	struct object obj = { 0 };
-	obj.declarator = declarator;
+	struct object* owner p_obj = calloc(1, sizeof(struct object));
+	p_obj->declarator = declarator;
 
 	if (p_type->struct_or_union_specifier)
 	{
@@ -19964,7 +19964,7 @@ struct object make_object_core(struct type* p_type, struct object_name_list* lis
 
 		if (p_struct_or_union_specifier)
 		{
-			obj.state = OBJECT_STATE_NOT_APPLICABLE;
+			p_obj->state = OBJECT_STATE_NOT_APPLICABLE;
 
 			struct member_declaration* p_member_declaration =
 				p_struct_or_union_specifier->member_declaration_list.head;
@@ -20001,12 +20001,12 @@ struct object make_object_core(struct type* p_type, struct object_name_list* lis
 								struct object member_obj = { 0 };
 								member_obj.declarator = declarator;
 								member_obj.state = OBJECT_STATE_NOT_APPLICABLE;
-								objects_push_back(&obj.members, &member_obj);
+								objects_push_back(&p_obj->members, &member_obj);
 							}
 							else
 							{
-								struct object member_obj = make_object_core(&p_member_declarator->declarator->type, &l, deep, declarator);
-								objects_push_back(&obj.members, &member_obj);
+								struct object* owner member_obj = make_object_core(&p_member_declarator->declarator->type, &l, deep, declarator);
+								objects_push_back(&p_obj->members, member_obj);
 							}
 
 							//member_index++;
@@ -20019,16 +20019,16 @@ struct object make_object_core(struct type* p_type, struct object_name_list* lis
 					if (p_member_declaration->specifier_qualifier_list->struct_or_union_specifier)
 					{
 						//struct object obj = {0};
-						//obj.state = OBJECT_STATE_STRUCT;
-						//objects_push_back(&obj.members, &obj);
+						//p_obj->state = OBJECT_STATE_STRUCT;
+						//objects_push_back(&p_obj->members, &obj);
 
 
 						struct type t = { 0 };
 						t.category = TYPE_CATEGORY_ITSELF;
 						t.struct_or_union_specifier = p_member_declaration->specifier_qualifier_list->struct_or_union_specifier;
 						t.type_specifier_flags = TYPE_SPECIFIER_STRUCT_OR_UNION;
-						struct object member_obj = make_object_core(&t, &l, deep, declarator);
-						objects_push_back(&obj.members, &member_obj);
+						struct object* owner member_obj = make_object_core(&t, &l, deep, declarator);
+						objects_push_back(&p_obj->members, member_obj);
 						type_destroy(&t);
 					}
 				}
@@ -20049,16 +20049,14 @@ struct object make_object_core(struct type* p_type, struct object_name_list* lis
 	}
 	else if (type_is_pointer(p_type))
 	{
-		obj.state = OBJECT_STATE_NOT_APPLICABLE;
+		p_obj->state = OBJECT_STATE_NOT_APPLICABLE;
 
 		if (deep < 1)
 		{
 			struct type t2 = type_remove_pointer(p_type);
 			if (type_is_struct_or_union(&t2))
 			{
-				struct object* owner p_object = calloc(1, sizeof(struct object));
-				*p_object = make_object_core(&t2, list, deep + 1, declarator);
-				obj.pointed = p_object;
+				p_obj->pointed = make_object_core(&t2, list, deep + 1, declarator);;
 			}
 
 			type_destroy(&t2);
@@ -20069,13 +20067,13 @@ struct object make_object_core(struct type* p_type, struct object_name_list* lis
 	{
 		//assert(p_object->members_size == 0);
 		//p_object->state = flags;
-		obj.state = OBJECT_STATE_NOT_APPLICABLE;
+		p_obj->state = OBJECT_STATE_NOT_APPLICABLE;
 	}
 
-	return obj;
+	return p_obj;
 }
 
-struct object make_object(struct type* p_type, const struct declarator* declarator)
+struct object * owner make_object(struct type* p_type, const struct declarator* declarator)
 {
 	assert(declarator);
 	struct object_name_list list = { .name = "" };
@@ -32676,9 +32674,9 @@ static void flow_visit_expression(struct flow_visit_ctx* ctx, struct expression*
 
         flow_visit_bracket_initializer_list(ctx, p_expression->braced_initializer);
 
-        struct object temp2 = make_object(&p_expression->type, p_expression->type_name->declarator);
-        object_swap(&temp2, &p_expression->type_name->declarator->object);
-        object_destroy(&temp2);
+        struct object* owner temp2 = make_object(&p_expression->type, p_expression->type_name->declarator);
+        object_swap(temp2, &p_expression->type_name->declarator->object);
+        object_destroy(temp2);
 
         //TODO the state of object depends of the initializer
         set_direct_state(&p_expression->type, &p_expression->type_name->declarator->object, OBJECT_STATE_ZERO);
@@ -33532,9 +33530,9 @@ static void flow_visit_declarator(struct flow_visit_ctx* ctx, struct declarator*
         p_defer->declarator = p_declarator;
 
 
-        struct object temp = make_object(&p_declarator->type, p_declarator);
-        object_swap(&temp, &p_declarator->object);
-        object_destroy(&temp);
+        struct object* owner temp = make_object(&p_declarator->type, p_declarator);
+        object_swap(temp, &p_declarator->object);
+        object_destroy(temp);
 
         if (p_declarator->declaration_specifiers &&
             p_declarator->declaration_specifiers->storage_class_specifier_flags & STORAGE_SPECIFIER_PARAMETER)
