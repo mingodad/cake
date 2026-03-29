@@ -19,7 +19,6 @@ jobs:
         cd src
         clang -DTEST -o build  build.c 
         ./build
-        valgrind ./cake -DTEST -fanalyzer  token.c  hashmap.c  console.c  tokenizer.c  osstream.c  fs.c  options.c  object.c  expressions.c  pre_expressions.c  parser.c  compile.c  visit_defer.c  visit_il.c  visit_asm.c  flow.c  error.c  target.c  type.c  main.c
             
   linux-gcc:
     runs-on: ubuntu-22.04
@@ -31,8 +30,7 @@ jobs:
         cd src
         gcc -DTEST build.c -o build
         ./build
-
-
+        valgrind ./cake -DTEST -fanalyzer  token.c  hashmap.c  console.c  tokenizer.c  osstream.c  fs.c  options.c  object.c  expressions.c  pre_expressions.c  parser.c  compile.c  visit_defer.c  visit_il.c  visit_asm.c  flow.c  error.c  target.c  type.c  main.c
 
   windows-msvc-x86:
     runs-on: windows-2022
