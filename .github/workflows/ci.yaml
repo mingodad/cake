@@ -25,6 +25,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - run: gcc --version
+    - run: sudo apt install valgrind
     - name: Build and test
       run: |
         cd src
