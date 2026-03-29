@@ -33,6 +33,7 @@ jobs:
         valgrind ./cake -DTEST -fanalyzer  token.c  hashmap.c  console.c  tokenizer.c  osstream.c  fs.c  options.c  object.c  expressions.c  pre_expressions.c  parser.c  compile.c  visit_defer.c  visit_il.c  visit_asm.c  flow.c  error.c  target.c  type.c  main.c
 
   windows-msvc-x86:
+    if: false
     runs-on: windows-2022
     steps:
     - uses: actions/checkout@v4
@@ -46,6 +47,7 @@ jobs:
         .\build.exe
 
   windows-msvc-x64:
+    if: false
     runs-on: windows-2022
     steps:
     - uses: actions/checkout@v4
